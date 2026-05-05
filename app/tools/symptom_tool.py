@@ -2,9 +2,12 @@ import os
 import re
 from app.db.vector_db import search_similar
 from app.services.rag_service import embed_query
-import ollama
+from groq import Groq
+from dotenv import load_dotenv
 
-MODEL = "llama3.2:3b"
+load_dotenv()
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+MODEL = "llama-3.3-70b-versatile"
 
 # Fields we want to collect during triage
 TRIAGE_FIELDS = [
@@ -112,13 +115,14 @@ Give a concise medical assessment:
 
 Be brief and professional."""
 
-    # Single LLM call
-    response = ollama.chat(
+    # Single LLM call using Groq
+    response = client.chat.completions.create(
         model=MODEL,
         messages=[{"role": "user", "content": prompt}],
-        options={"temperature": 0.3, "num_predict": 400}
+        temperature=0.3,
+        max_completion_tokens=400
     )
-    return response["message"]["content"]
+    return response.choices[0].message.content.strip()
 
 
 # Schema for Ollama agent
