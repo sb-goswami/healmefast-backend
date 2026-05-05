@@ -80,14 +80,24 @@ async def get_mcp_tools():
         print(f"Failed to load MCP tools: {e}")
         return []
 
-try:
-    MCP_TOOLS = asyncio.run(get_mcp_tools())
-    AVAILABLE_TOOLS.extend(MCP_TOOLS)
-    MCP_TOOL_NAMES = [t["function"]["name"] for t in MCP_TOOLS]
-except Exception:
-    MCP_TOOL_NAMES = []
+MCP_TOOLS = []
+MCP_TOOL_NAMES = []
+mcp_initialized = False
+
+async def ensure_mcp_initialized():
+    global MCP_TOOLS, MCP_TOOL_NAMES, mcp_initialized
+    if not mcp_initialized:
+        print("[Agent] Initializing MCP tools...")
+        MCP_TOOLS = await get_mcp_tools()
+        for tool in MCP_TOOLS:
+            if tool not in AVAILABLE_TOOLS:
+                AVAILABLE_TOOLS.append(tool)
+        MCP_TOOL_NAMES = [t["function"]["name"] for t in MCP_TOOLS]
+        mcp_initialized = True
+        print(f"[Agent] Loaded {len(MCP_TOOLS)} MCP tools.")
 
 async def execute_mcp_tool(function_name: str, arguments: dict):
+    await ensure_mcp_initialized()
     python_exe = sys.executable
     server_path = os.path.join(os.path.dirname(__file__), "..", "..", "hospital_mcp.py")
     
@@ -143,7 +153,7 @@ RESPONSE STYLE:
 
 async def run_agent(user_message: str, history: list = None) -> dict:
     """Main agent loop for handling user queries."""
-
+    await ensure_mcp_initialized()
     if not user_message or user_message.strip() == "":
         user_message = "analyze my report"
 
