@@ -238,14 +238,13 @@ async def run_agent(user_message: str, history: list = None) -> dict:
             "history": history
         }
 
-    # 🔥 NORMAL AGENT FLOW
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=history,
         tools=AVAILABLE_TOOLS,
         tool_choice="auto",
         temperature=0.2,
-        max_completion_tokens=200
+        max_tokens=200
     )
 
     assistant_message = response.choices[0].message
