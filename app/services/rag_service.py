@@ -7,10 +7,14 @@ import time
 load_dotenv()
 
 HF_TOKEN = os.getenv("HF_TOKEN")
+if not HF_TOKEN:
+    print("[WARNING] HF_TOKEN is not set. Hugging Face API requests might fail.")
+
 # Using the same model to maintain compatibility with existing vector index
 MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 API_URL = f"https://api-inference.huggingface.co/models/{MODEL_ID}"
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+
 
 def query_hf_api(payload):
     """Call Hugging Face Inference API with retries for cold starts."""
