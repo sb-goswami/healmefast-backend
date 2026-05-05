@@ -120,7 +120,7 @@ Be brief and professional."""
         model=MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=0.3,
-        max_completion_tokens=400
+        max_tokens=400
     )
     return response.choices[0].message.content.strip()
 
