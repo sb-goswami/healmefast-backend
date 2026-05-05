@@ -111,7 +111,7 @@ Give a concise medical assessment:
 **Possible Conditions:** (2-3 bullet points)
 **Warning Signs to Watch:** (brief)  
 **Recommended Action:** (one clear action)
-*Disclaimer: I am an AI. Please consult a real doctor.*
+*Disclaimer: I am an AI Health Assistant. Please consult a real doctor.*
 
 Be brief and professional."""
 
