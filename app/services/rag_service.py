@@ -1,40 +1,48 @@
 import os
 import requests
 import numpy as np
-from dotenv import load_dotenv
-import time
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()
+# Force load the .env file
+load_dotenv(find_dotenv(), override=True)
 
 HF_TOKEN = os.getenv("HF_TOKEN")
 if not HF_TOKEN:
-    print("[WARNING] HF_TOKEN is not set. Hugging Face API requests might fail.")
+    print("[WARNING] HF_TOKEN is not set in environment or .env file.")
+else:
+    print(f"[RAG Service] HF_TOKEN found (Length: {len(HF_TOKEN)})")
+
+from huggingface_hub import InferenceClient
 
 # Using the same model to maintain compatibility with existing vector index
 MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
-API_URL = f"https://api-inference.huggingface.co/models/{MODEL_ID}"
-headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
+def get_client():
+    # Reload in case it was added after process start
+    load_dotenv(find_dotenv(), override=True)
+    token = os.getenv("HF_TOKEN")
+    if not token:
+        print("[HF API WARNING] HF_TOKEN is missing. Requests will likely fail.")
+    return InferenceClient(model=MODEL_ID, token=token)
 
 def query_hf_api(payload):
-    """Call Hugging Face Inference API with retries for cold starts."""
-    for attempt in range(3):
-        response = requests.post(API_URL, headers=headers, json=payload)
-        result = response.json()
+    """Call Hugging Face Inference API using InferenceClient."""
+    client = get_client()
+    try:
+        # feature_extraction expects 'text' or 'inputs'
+        inputs = payload.get("inputs", "")
+        if isinstance(inputs, list):
+            # For lists of strings
+            result = client.feature_extraction(inputs)
+        else:
+            # For a single string
+            result = client.feature_extraction(inputs)
         
-        # Handle model loading (cold start)
-        if isinstance(result, dict) and "estimated_time" in result:
-            wait_time = result.get("estimated_time", 5)
-            print(f"[HF API] Model is loading... waiting {wait_time}s (Attempt {attempt+1}/3)")
-            time.sleep(wait_time)
-            continue
-            
-        if response.status_code != 200:
-            print(f"[HF API Error] {result}")
-            return None
-            
+        # result is usually a list of floats or a list of lists
         return result
-    return None
+    except Exception as e:
+        print(f"[HF API Error] {e}")
+        return None
 
 # 🔹 Chunking
 def chunk_text(text, chunk_size=500, overlap=100):

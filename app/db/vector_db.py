@@ -9,22 +9,29 @@ MONGODB_URI = os.getenv("MONGODB_URI")
 DB_NAME = os.getenv("DB_NAME", "health_ai_db")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "medical_docs")
 
-# Use short timeouts so DNS failures don't hang server startup
-try:
-    client = MongoClient(
-        MONGODB_URI,
-        serverSelectionTimeoutMS=5000,   # fail fast if can't connect
-        connectTimeoutMS=5000,
-        socketTimeoutMS=10000,
-    )
-    db = client[DB_NAME]
-    collection = db[COLLECTION_NAME]
-    print("[MongoDB] Client created successfully.")
-except (ConfigurationError, Exception) as e:
-    print(f"[MongoDB WARNING] Could not connect: {e}")
+# Validation: Default to None if empty to avoid localhost fallback
+if not MONGODB_URI or "mongodb" not in MONGODB_URI:
+    print("[MongoDB WARNING] MONGODB_URI is missing or invalid. Vector search will be unavailable.")
     client = None
     db = None
     collection = None
+else:
+    # Use short timeouts so DNS failures don't hang server startup
+    try:
+        client = MongoClient(
+            MONGODB_URI,
+            serverSelectionTimeoutMS=5000,   # fail fast if can't connect
+            connectTimeoutMS=5000,
+            socketTimeoutMS=10000,
+        )
+        db = client[DB_NAME]
+        collection = db[COLLECTION_NAME]
+        print(f"[MongoDB] Connected to database: {DB_NAME}")
+    except (ConfigurationError, Exception) as e:
+        print(f"[MongoDB ERROR] Could not connect: {e}")
+        client = None
+        db = None
+        collection = None
 
 # Store
 def store_embeddings(chunks, embeddings):

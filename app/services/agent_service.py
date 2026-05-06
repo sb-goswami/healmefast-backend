@@ -56,7 +56,8 @@ async def get_mcp_tools():
     
     server_params = StdioServerParameters(
         command=python_exe,
-        args=[server_path]
+        args=[server_path],
+        env=os.environ.copy()
     )
     
     try:
@@ -103,7 +104,8 @@ async def execute_mcp_tool(function_name: str, arguments: dict):
     
     server_params = StdioServerParameters(
         command=python_exe,
-        args=[server_path]
+        args=[server_path],
+        env=os.environ.copy()
     )
     
     async with stdio_client(server_params) as (read, write):
