@@ -21,5 +21,5 @@ COPY . .
 EXPOSE 8080
 
 # Command to run the application
-# We use sh -c to ensure the $PORT environment variable is expanded correctly
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# We use python -m app.main to handle the $PORT environment variable inside Python
+CMD ["python", "-m", "app.main"]
