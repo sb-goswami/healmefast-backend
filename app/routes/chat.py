@@ -52,3 +52,11 @@ async def get_chat_history(session_id: str):
     if not chat:
         return {"error": "Chat not found"}
     return {"chat": chat}
+
+@router.delete("/history/{session_id}")
+async def delete_chat_session(session_id: str):
+    from app.db.chat_db import delete_chat
+    success = delete_chat(session_id)
+    if not success:
+        return {"error": "Failed to delete chat or chat not found"}, 404
+    return {"message": "Chat deleted successfully", "session_id": session_id}

@@ -63,3 +63,11 @@ def get_chat_by_id(session_id: str):
         return None
     
     return chat_collection.find_one({"session_id": session_id}, {"_id": 0})
+
+def delete_chat(session_id: str):
+    """Deletes a chat session by session_id."""
+    if chat_collection is None:
+        return False
+    
+    result = chat_collection.delete_one({"session_id": session_id})
+    return result.deleted_count > 0
