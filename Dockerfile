@@ -21,5 +21,5 @@ COPY . .
 EXPOSE 8080
 
 # Command to run the application
-# Railway provides the PORT environment variable
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}
+# We use sh -c to ensure the $PORT environment variable is expanded correctly
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
