@@ -1,5 +1,0 @@
-[phases.setup]
-nixPkgs = ["tesseract", "poppler_utils"]
-
-[variables]
-NIXPACKS_PYTHON_VERSION = "3.13"
