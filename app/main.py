@@ -13,7 +13,8 @@ origins = [
 ]
 frontend_url = os.getenv("FRONTEND_URL")
 if frontend_url:
-    origins.append(frontend_url)
+    # Remove trailing slash if present to avoid CORS mismatch
+    origins.append(frontend_url.rstrip("/"))
 
 app.add_middleware(
     CORSMiddleware,
