@@ -25,3 +25,7 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 fastmcp
 huggingface_hub
+passlib[bcrypt]
+python-jose[cryptography]
+email-validator
+bcrypt==3.2.2

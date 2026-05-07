@@ -49,9 +49,9 @@ def search_doctors(specialty: str) -> str:
         if not matched_doctors:
             return "No doctors found for that specialty at the moment."
 
-        result = "Please ask the user to select one of the following doctors by showing these exact options:\n\n"
+        result = f"I found the following {specialty} specialists for you. Please ask the user to select one:\n\n"
         for doc in matched_doctors:
-            btn_text = f"{doc['name']} ({doc['exp']}) - {doc['hospital']}"
+            btn_text = f"{doc['name']} ({doc.get('specialty', specialty)}) - {doc['exp']} exp - {doc['hospital']}"
             result += f"[Option: {btn_text}]\n"
             
         return result

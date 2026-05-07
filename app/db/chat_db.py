@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pymongo import MongoClient, DESCENDING
 
 from dotenv import load_dotenv
@@ -25,49 +25,66 @@ else:
         print(f"[MongoDB Chat DB] Could not connect: {e}")
         chat_collection = None
 
-def save_chat(session_id: str, title: str, messages: list):
+def save_chat(session_id: str, title: str, messages: list, user_email: str = None):
     """Inserts or updates a chat session in the DB."""
     if chat_collection is None:
         return
     
+    query = {"session_id": session_id}
+    if user_email:
+        query["user_email"] = user_email
+
     chat_collection.update_one(
-        {"session_id": session_id},
+        query,
         {
             "$set": {
                 "title": title,
                 "messages": messages,
-                "updated_at": datetime.utcnow()
+                "updated_at": datetime.now(timezone.utc),
+                "user_email": user_email
             },
             "$setOnInsert": {
-                "created_at": datetime.utcnow()
+                "created_at": datetime.now(timezone.utc)
             }
         },
         upsert=True
     )
 
-def get_all_chats():
-    """Retrieves all chat sessions (only session_id, title, updated_at)."""
+def get_all_chats(user_email: str = None):
+    """Retrieves all chat sessions for a user."""
     if chat_collection is None:
         return []
     
+    query = {}
+    if user_email:
+        query["user_email"] = user_email
+        
     chats = chat_collection.find(
-        {},
+        query,
         {"session_id": 1, "title": 1, "updated_at": 1, "_id": 0}
     ).sort("updated_at", DESCENDING)
     
     return list(chats)
 
-def get_chat_by_id(session_id: str):
-    """Retrieves full chat history for a given session."""
+def get_chat_by_id(session_id: str, user_email: str = None):
+    """Retrieves full chat history for a given session and user."""
     if chat_collection is None:
         return None
     
-    return chat_collection.find_one({"session_id": session_id}, {"_id": 0})
+    query = {"session_id": session_id}
+    if user_email:
+        query["user_email"] = user_email
+        
+    return chat_collection.find_one(query, {"_id": 0})
 
-def delete_chat(session_id: str):
-    """Deletes a chat session by session_id."""
+def delete_chat(session_id: str, user_email: str = None):
+    """Deletes a chat session by session_id and user."""
     if chat_collection is None:
         return False
     
-    result = chat_collection.delete_one({"session_id": session_id})
+    query = {"session_id": session_id}
+    if user_email:
+        query["user_email"] = user_email
+        
+    result = chat_collection.delete_one(query)
     return result.deleted_count > 0
