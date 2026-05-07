@@ -13,8 +13,14 @@ origins = [
 ]
 frontend_url = os.getenv("FRONTEND_URL")
 if frontend_url:
-    # Remove trailing slash if present to avoid CORS mismatch
-    origins.append(frontend_url.rstrip("/"))
+    # Clean up the URL: remove quotes, whitespace, and trailing slashes
+    clean_url = frontend_url.strip().replace('"', '').replace("'", "").rstrip("/")
+    if clean_url:
+        origins.append(clean_url)
+        print(f"[CORS] Allowed Origin added: {clean_url}")
+
+# If we are in production but FRONTEND_URL is missing, warn but allow local for safety
+print(f"[CORS] Final allowed origins: {origins}")
 
 app.add_middleware(
     CORSMiddleware,
