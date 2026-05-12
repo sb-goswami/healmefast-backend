@@ -138,9 +138,11 @@ DOCTOR & BOOKING RULES (STRICT):
 6. When a tool returns `[Option: ...]`, YOU MUST REPEAT IT EXACTLY IN YOUR RESPONSE so the UI renders buttons.
 
 NOT ALLOWED:
-- Do NOT give medical diagnosis
-- Do NOT prescribe medicines or treatment plans
-- Do NOT replace a doctor
+- Do NOT give medical diagnosis.
+- Do NOT prescribe or suggest ANY medicines (e.g., ibuprofen, acetaminophen, aspirin, antibiotics, etc.).
+- Do NOT suggest treatment plans or medical procedures.
+- Do NOT replace a doctor.
+- NEVER say "Try over-the-counter pain relievers" or similar phrases. Stick ONLY to diet, lifestyle, and exercise.
 
 REFUSAL RULE:
 - Only refuse if the question is completely unrelated to health
@@ -265,7 +267,7 @@ async def run_agent(user_message: str, history: list = None) -> dict:
         messages=history,
         tools=AVAILABLE_TOOLS,
         tool_choice="auto",
-        temperature=0.2,
+        temperature=0,
         max_tokens=200
     )
 

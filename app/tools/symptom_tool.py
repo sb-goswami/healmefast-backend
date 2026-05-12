@@ -118,8 +118,8 @@ Be brief and professional."""
     # Single LLM call using Groq
     response = client.chat.completions.create(
         model=MODEL,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3,
+        messages=[{"role": "user", "content": prompt + "\n\nCRITICAL: Do NOT suggest any medicines. Suggest ONLY diet, lifestyle, or exercise."}],
+        temperature=0,
         max_tokens=400
     )
     return response.choices[0].message.content.strip()
