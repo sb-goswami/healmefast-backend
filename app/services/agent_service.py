@@ -286,12 +286,6 @@ async def run_agent(user_message: str, history: list = None) -> dict:
         )
         
         history.append({
-            "role": "tool",
-            "name": "check_symptoms",
-            "content": tool_result
-        })
-        
-        history.append({
             "role": "assistant",
             "content": tool_result
         })
