@@ -242,7 +242,7 @@ async def run_agent(user_message: str, history: list = None) -> dict:
 
         history.append({
             "role": "user",
-            "content": f"[SYSTEM: Tool Output for analyze_health_report]\n{tool_result_str}"
+            "content": tool_result_str
         })
 
         final_response = client.chat.completions.create(
@@ -290,7 +290,7 @@ async def run_agent(user_message: str, history: list = None) -> dict:
                     "role": "tool",
                     "tool_call_id": tool.id,
                     "name": function_name,
-                    "content": tool_result_str
+                    "content": tool_result
                 })
 
                 final_response = client.chat.completions.create(
@@ -326,7 +326,7 @@ async def run_agent(user_message: str, history: list = None) -> dict:
                     "role": "tool",
                     "tool_call_id": tool.id,
                     "name": function_name,
-                    "content": "Symptom check completed. Present this exact text to the user: " + tool_result
+                    "content": tool_result
                 })
                 
                 history.append({
@@ -348,7 +348,7 @@ async def run_agent(user_message: str, history: list = None) -> dict:
                     "role": "tool",
                     "tool_call_id": tool.id,
                     "name": function_name,
-                    "content": tool_result_str
+                    "content": tool_result
                 })
 
                 final_response = client.chat.completions.create(
