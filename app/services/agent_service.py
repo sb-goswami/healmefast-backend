@@ -262,6 +262,46 @@ async def run_agent(user_message: str, history: list = None) -> dict:
             "history": history
         }
 
+    symptom_keywords = [
+        "headache", "pain", "fever", "dizzy", "nausea", "vomit", "cough", 
+        "breath", "ache", "sore", "hurt", "symptom", "feeling unwell"
+    ]
+
+    if any(word in user_message.lower() for word in symptom_keywords):
+        print("[FORCED] Using symptom_tool")
+        
+        # Prepare conversation history for the tool
+        convo_lines = []
+        for m in history:
+            role = m.get("role", "")
+            content = m.get("content", "")
+            if role == "user" and content:
+                convo_lines.append(f"Patient: {content}")
+            elif role == "assistant" and content:
+                convo_lines.append(f"Doctor AI: {content}")
+
+        tool_result = check_symptoms(
+            symptoms=user_message, 
+            conversation_history="\n".join(convo_lines[-30:])
+        )
+        
+        history.append({
+            "role": "tool",
+            "name": "check_symptoms",
+            "content": tool_result
+        })
+        
+        history.append({
+            "role": "assistant",
+            "content": tool_result
+        })
+
+        return {
+            "answer": tool_result,
+            "tool_used": "check_symptoms",
+            "history": history
+        }
+
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=history,

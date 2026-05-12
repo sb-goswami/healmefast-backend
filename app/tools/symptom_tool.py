@@ -92,12 +92,16 @@ def check_symptoms(symptoms: str, conversation_history: str = "") -> str:
 Recent conversation:
 {recent_history}
 
-Ask this ONE question to gather more information: "{question}"
-Give 3-4 short answer options in EXACTLY this format (one per line):
-[Option: <choice>]
+TASK:
+1. Ask this ONE question to gather more information: "{question}"
+2. Provide 3-4 short answer options for the user to choose from.
+3. FORMAT: You MUST provide the options in this EXACT format, one per line:
+[Option: <choice text>]
+[Option: <choice text>]
 [Option: Other (please describe)]
 
-Do not add any other text. Just the question and the options."""
+CRITICAL: Do NOT add any introductory or concluding text. ONLY the question and the [Option: ...] list.
+"""
 
     else:
         # Enough info — give diagnosis
@@ -107,13 +111,14 @@ Do not add any other text. Just the question and the options."""
 
 The patient originally reported: "{symptoms}"
 
-Give a concise medical assessment:
+Provide a concise medical assessment using the following structure:
 **Possible Conditions:** (2-3 bullet points)
 **Warning Signs to Watch:** (brief)  
-**Recommended Action:** (one clear action)
+**Recommended Action:** (one clear action - Diet, Lifestyle, or Exercise ONLY. NO MEDICINES)
+
 *Disclaimer: I am an AI Health Assistant. Please consult a real doctor.*
 
-Be brief and professional."""
+Be brief and professional. Do NOT suggest any over-the-counter or prescription drugs."""
 
     # Single LLM call using Groq
     response = client.chat.completions.create(
