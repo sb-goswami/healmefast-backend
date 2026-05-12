@@ -42,19 +42,26 @@ Answer:
     return response.choices[0].message.content.strip()
 
 def generate_initial_analysis(report_text):
+    if not report_text or "No text extracted" in report_text or len(report_text) < 50:
+        return "I couldn't read the report clearly. Please upload a higher-quality photo or PDF so I can provide an accurate analysis."
+
     prompt = f"""You are an expert medical AI assistant. The user just uploaded their health report.
 Scan the report and provide an initial analysis.
 
-RULES:
-- Only focus on what is important (abnormal or critical values).
-- If everything is normal, say "Your report looks completely normal! Keep up the healthy lifestyle."
-- Otherwise, use EXACTLY this markdown template:
+STRICT RULES:
+1. ONLY focus on values that are explicitly outside the "Reference Range" or "Interval" mentioned in the report.
+2. If a value is within the normal range, DO NOT list it as abnormal.
+3. If no reference range is found for a specific test, do NOT guess. Say "Cannot determine (range missing)".
+4. NEVER invent or assume values. Only use what is in the text.
+5. If everything is normal, say "Your report looks completely normal! Keep up the healthy lifestyle."
+6. Focus on one finding per bullet point.
 
+TEMPLATE:
 ### ⚠️ Abnormal Findings
-* **[Finding Name]**: [Brief value/issue]. Actionable lifestyle or diet suggestion: [suggestion].
+* **[Finding Name]**: [Value] (Range: [Range]). [Brief reason why it's abnormal]. Actionable lifestyle or diet suggestion: [suggestion].
 
 ### 🚨 Critical Findings
-* **[Finding Name]**: [Brief value/issue]. [Potential disease risk]. 👨‍⚕️ **Action required:** Consult [Specialist] immediately.
+* **[Finding Name]**: [Value] (Range: [Range]). [Potential risk]. 👨‍⚕️ **Action required:** Consult [Specialist] immediately.
 * If none: "None found."
 
 Report Text:

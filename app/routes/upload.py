@@ -26,9 +26,13 @@ async def upload_file(file: UploadFile = File(...)):
         # 2. OCR extract
         print("[Upload] Running OCR...")
         text = extract_text(file_path)
-        if not text:
-            print("[Upload WARNING] OCR returned no text.")
-            text = "No text extracted from document."
+        if not text or len(text.strip()) < 50:
+            print("[Upload WARNING] OCR returned insufficient text.")
+            return {
+                "filename": file.filename,
+                "message": "OCR failed or image quality is too low. Please upload a clearer photo.",
+                "analysis": "I couldn't read the report clearly. Please upload a higher-quality photo or PDF so I can provide an accurate analysis."
+            }
 
         # 3. RAG processing
         print(f"[Upload] Processing RAG (Text size: {len(text)})...")
